@@ -42,15 +42,18 @@ class InicioPAM:
 
     def format_fecha_parcial(self, numero_parcial) -> str:
         parcial = self.get_parcial(numero_parcial)
-        return parcial.fecha_examen.strftime('%')
+        return parcial.fecha_examen.strftime('%d-%m-%Y')
 
     def format_porcentajes_parcial(self, numero_parcial):
         parcial = self.get_parcial(numero_parcial)
         porcentajes = [
             ('Conocimiento', parcial.porcentajes.conocimiento),
-            ('Desempeño', parcial.porcentajes.conocimiento),
-            ('Producto', parcial.porcentajes.conocimiento),
-            ('Proyecto Integrador', parcial.porcentajes.conocimiento)
+            ('Desempeño', parcial.porcentajes.desempeno),
+            ('Producto', parcial.porcentajes.producto),
+            ('Proyecto Integrador', parcial.porcentajes.proyecto_integrador)
         ]
 
-        return '\n'.join([f"Porcentaje {p[0]}: {p[1]}" for p in porcentajes])
+        return '\n'.join([f"Porcentaje {p[0]}: {p[1] * 100}%" for p in porcentajes])
+
+    def format_labels_parciales(self):
+        return [f"Parcial {parcial.numero_parcial}" for parcial in self.parciales]
