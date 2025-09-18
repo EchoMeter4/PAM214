@@ -5,3 +5,4 @@ const saludoPersonalizado = (nombre, edad) => {
 };
 
 console.log(saludoPersonalizado('Isay', 37));
+console.log(saludoPersonalizado('Gael', 21));
