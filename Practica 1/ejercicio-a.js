@@ -1,6 +1,6 @@
 console.log('Inciso a)');
 
-const nombre = "Armando";
+const nombre = "Ana Maria";
 const edad = 25;
 
 const saludo = "Hola, " + nombre + ". Tienes " + edad + " años.";
