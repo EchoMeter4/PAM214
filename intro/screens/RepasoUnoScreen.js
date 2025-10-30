@@ -101,6 +101,8 @@ export default function RepasoUnoScreen(props) {
                             placeholder="ejemplo@ejemplo.com"
                             value={email}
                             onChangeText={setEmail}
+                            autoCapitalize="none"
+                            autoCorrect={false}
                             keyboardType="email-address"
                         />
                     </View>
