@@ -20,7 +20,7 @@ import {useEffect, useState} from "react";
 • Imagen de fondo
  */
 
-export default function RepasoUnoScreen(props) {
+export default function RepasoUnoScreen() {
     const [isLoading, setIsLoading] = useState(true);
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
