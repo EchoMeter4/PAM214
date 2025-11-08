@@ -1,19 +1,22 @@
 import {StyleSheet, View, Text} from 'react-native';
 import ArticleCard from "./ArticleCard";
 
-export default function articleSection({title, articles}) {
+export default function articleSection({title, articles, style}) {
     return (
-        <View>
-            <Text>{title}</Text>
+        <View style={[styles.section && style]}>
+            <Text style={styles.sectionHeader}>{title}</Text>
             <View style={styles.articleContainer}>
                 {
                     articles.map(
-                        article => (
+                        (article, index)=> (
                             <ArticleCard
                                 style={styles.articleStyle}
                                 title={article.title}
                                 date={article.date}
                                 summary={article.summary}
+                                image={article.img}
+                                index={index}
+                                key={index}
                             />
                         )
                     )
@@ -26,9 +29,16 @@ export default function articleSection({title, articles}) {
 const styles = StyleSheet.create({
     articleContainer: {
         display: 'flex',
-        flexDirection: 'row'
+        flexDirection: 'row',
+        marginBottom: 10
     },
     articleStyle: {
         marginRight: 100
+    },
+    sectionHeader: {
+        fontSize: 24,
+        marginBottom: 5
+    },
+    section: {
     }
 });

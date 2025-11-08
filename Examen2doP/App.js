@@ -1,5 +1,5 @@
 import {StatusBar} from 'expo-status-bar';
-import {StyleSheet, Text, View, ScrollView} from 'react-native';
+import {StyleSheet, Text, View, ScrollView, Image} from 'react-native';
 import ArticleCard from "./components/ArticleCard";
 import AppHeader from "./components/AppHeader";
 import ArticleSection from './components/ArticleSection'
@@ -38,12 +38,14 @@ export default function App() {
                 {
                     title: 'Titulo de Articulo 1',
                     date: 'April 15 2025',
-                    summary: 'Lorem ipsum dolor sit amet.'
+                    summary: 'Lorem ipsum dolor sit amet.',
+                    img: require('./assets/tech1.jpeg'),
                 },
                 {
                     title: 'Titulo de Articulo 2',
                     date: 'April 16 2025',
-                    summary: 'Lorem ipsum dolor sit amet.'
+                    summary: 'Lorem ipsum dolor sit amet.',
+                    img: require('./assets/tech2.jpeg'),
                 },
             ]
         },
@@ -53,12 +55,14 @@ export default function App() {
                 {
                     title: 'Titulo de Articulo 3',
                     date: 'April 15 2025',
-                    summary: 'Lorem ipsum dolor sit amet.'
+                    summary: 'Lorem ipsum dolor sit amet.',
+                    img: require('./assets/sports1.jpg'),
                 },
                 {
                     title: 'Titulo de Articulo 4',
                     date: 'April 16 2025',
-                    summary: 'Lorem ipsum dolor sit amet.'
+                    summary: 'Lorem ipsum dolor sit amet.',
+                    img: require('./assets/sports2.jpeg'),
                 },
             ]
         },
@@ -68,12 +72,14 @@ export default function App() {
                 {
                     title: 'Titulo de Articulo 5',
                     date: 'April 15 2025',
-                    summary: 'Lorem ipsum dolor sit amet.'
+                    summary: 'Lorem ipsum dolor sit amet.',
+                    img: require('./assets/ent1.jpeg'),
                 },
                 {
                     title: 'Titulo de Articulo 6',
                     date: 'April 16 2025',
-                    summary: 'Lorem ipsum dolor sit amet.'
+                    summary: 'Lorem ipsum dolor sit amet.',
+                    img: require('./assets/ent2.jpg'),
                 },
             ]
         },
@@ -82,13 +88,16 @@ export default function App() {
         <ScrollView
             stickyHeaderIndices={[0]}
         >
+            <AppHeader title="Boring News"/>
+
             <View style={styles.container}>
-                <AppHeader title="Boring News"/>
                 {
-                    sections.map(section => (
+                    sections.map((section, index) => (
                         <ArticleSection
                             title={section.title}
                             articles={section.articles}
+                            key={index}
+                            style={[index !== sections.length - 1 && styles.spacing]}
                         />
                     ))
                 }
@@ -103,5 +112,10 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
+        marginTop: 10,
+        marginBottom: 10
     },
+    spacing: {
+        borderBottomWidth: 1
+    }
 });

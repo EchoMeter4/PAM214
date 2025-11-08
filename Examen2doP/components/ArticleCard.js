@@ -1,16 +1,9 @@
-import {StyleSheet, View, Text, Button} from 'react-native';
+import {StyleSheet, View, Text, Button, Image, Alert} from 'react-native';
 
-{/*// - título del artículo*/}
-{/*// - fecha de publicación*/}
-{/*// - resumen breve (2-3 líneas)*/}
-{/*// - Button Switch “Leer más”*/}
-{/*// 4. Al presionar “Leer más”, mostrar Alert con:*/}
-{/*//     - Título del artículo*/}
-
-export default function ArticleCard({title, summary, date}) {
+export default function ArticleCard({title, summary, date, index = 1, image}) {
     return (
-        <View style={styles.card}>
-            <View style={styles.imagePlaceholder}/>
+        <View style={[index === 0 && styles.spacing]}>
+            <Image source={image} style={styles.image}/>
             <Text>{title}</Text>
             <Text>{summary}</Text>
             <Text>{date}</Text>
@@ -20,13 +13,12 @@ export default function ArticleCard({title, summary, date}) {
 }
 
 const styles = StyleSheet.create({
-    imagePlaceholder: {
-        width: 200, height: 200,
-        backgroundColor: 'gray',
+    image: {
+        width: 400,
+        height: 200,
+        resizeMode: "cover"
     },
-    card: {
-        marginBottom: 10,
-        marginRight: 10,
-        marginLeft: 10
+    spacing: {
+        marginRight: 20,
     }
 });
