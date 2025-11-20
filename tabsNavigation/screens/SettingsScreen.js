@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-export default function Settings({ navigation }) {
+export default function SettingsScreen({ navigation }) {
     return (
 
         <View style={styles.container}>

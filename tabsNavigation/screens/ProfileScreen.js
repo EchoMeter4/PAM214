@@ -1,14 +1,23 @@
-import { View, Text, StyleSheet } from 'react-native';
+import {View, Text, StyleSheet, Button} from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import {useNavigation} from "@react-navigation/native";
 
-export default function Home() {
+export default function ProfileScreen() {
+    const navigation = useNavigation();
+
     return (
 
         <View style={styles.container}>
+
             <View style={styles.iconRow}>
-                <Ionicons name="home-outline" size={28} color="red" />
-                <Text style={styles.title}>Bienvenido a la pantalla principal</Text>
+                <Ionicons name="person-outline" size={28} color="green"/>
+                <Text style={styles.title}> Perfil de usuario </Text>
+                <Button
+                    title="Detalles de Usuario"
+                    onPress={() => navigation.navigate('Details')}
+                />
             </View>
+
         </View>
 
     );
@@ -27,9 +36,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     title: {
-        fontSize: 18,
+        fontSize: 22,
         fontWeight: 'bold',
         marginLeft: 10,
-        color: 'red',
+        color: 'green',
     },
 });
