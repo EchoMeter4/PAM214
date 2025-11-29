@@ -1,6 +1,6 @@
-import {StyleSheet, View, Text} from "react-native";
+import {StyleSheet, View, Text, TouchableOpacity} from "react-native";
 
-export default function RenderUsuario({item, index}) {
+export default function RenderUsuario({item, index, editItem, deleteItem}) {
     return (
         <View style={styles.userItem}>
             <View style={styles.userNumber}>
@@ -8,6 +8,7 @@ export default function RenderUsuario({item, index}) {
                     {index + 1}
                 </Text>
             </View>
+
             <View style={styles.userInfo}>
                 <Text style={styles.userName}>
                     {item.nombre}
@@ -23,6 +24,22 @@ export default function RenderUsuario({item, index}) {
                     })}
                 </Text>
             </View>
+
+            <View style={styles.actions}>
+                <TouchableOpacity
+                    style={[styles.actionButton, styles.editButton]}
+                    onPress={() => editItem(item.nombre)}
+                >
+                    <Text style={styles.actionText}>Editar</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={[styles.actionButton, styles.deleteButton]}
+                    onPress={() => deleteItem && deleteItem(item.nombre)}
+                >
+                    <Text style={styles.actionText}>Eliminar</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     )
 }
@@ -36,6 +53,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         borderLeftWidth: 4,
         borderLeftColor: '#007AFF',
+        alignItems: 'center',
     },
     userNumber: {
         width: 35,
@@ -69,4 +87,24 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#666',
     },
-})
+    actions: {
+        marginLeft: 12,
+        gap: 6,
+    },
+    actionButton: {
+        paddingVertical: 4,
+        paddingHorizontal: 10,
+        borderRadius: 6,
+    },
+    editButton: {
+        backgroundColor: '#FFB200',
+    },
+    deleteButton: {
+        backgroundColor: '#FF3B30',
+    },
+    actionText: {
+        color: '#fff',
+        fontSize: 12,
+        fontWeight: '600',
+    },
+});

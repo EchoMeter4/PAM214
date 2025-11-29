@@ -16,11 +16,11 @@ import RenderUsuario from '../components/RenderUsuario';
 const controller = new UsuarioController();
 
 export default function InsertUsuarioScreen() {
-
     const [usuarios, setUsuarios] = useState([]);
     const [nombre, setNombre] = useState('');
+    const [nombreViejo, setNombreViejo] = useState('');
     const [loading, setLoading] = useState(true);
-    const [guardando, setGuardando] = useState(false);
+    const [editando, setEditando] = useState(false);
 
     const cargarUsuarios = useCallback(async () => {
         try {
@@ -39,116 +39,178 @@ export default function InsertUsuarioScreen() {
         const init = async () => {
             await controller.initialize();
             await cargarUsuarios();
-        }
+        };
 
         init();
         controller.addListener(cargarUsuarios);
 
         return () => {
-            controller.removeListener(cargarUsuarios())
+            controller.removeListener(cargarUsuarios);
         };
-    }, [cargarUsuarios])
+    }, [cargarUsuarios]);
+
+    const modificar = (nombreViejoParam) => {
+        setEditando(true);
+        setNombre(nombreViejoParam);
+        setNombreViejo(nombreViejoParam);
+    };
+
+    const borrar = (nombreABorrar) => {
+        Alert.alert(
+            'Eliminar usuario',
+            `¿Seguro que quieres eliminar a "${nombreABorrar}"?`,
+            [
+                {
+                    text: 'Cancelar',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Eliminar',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            setLoading(true);
+                            await controller.borrarUsuario(nombreABorrar);
+                            Alert.alert('Eliminado', `Usuario "${nombreABorrar}" eliminado.`);
+                        } catch (error) {
+                            Alert.alert('Error', error.message);
+                        } finally {
+                            setLoading(false);
+                        }
+                    },
+                },
+            ]
+        );
+    };
 
     const handleAgregar = async () => {
-        if (guardando) return;
+        if (loading) return;
+
+        if (!nombre.trim()) {
+            Alert.alert('Nombre vacío', 'Escribe un nombre antes de guardar.');
+            return;
+        }
+
         try {
-            setGuardando(true);
-            const usuarioCreado = await controller.crearUsuario(nombre);
-            Alert.alert('Usuario Creado', `"${usuarioCreado.nombre} guardado con ID: ${usuarioCreado.id}"`);
+            setLoading(true);
+            if (!editando) {
+                const usuarioCreado = await controller.crearUsuario(nombre.trim());
+                Alert.alert('Usuario Creado', `"${usuarioCreado.nombre}" guardado con ID: ${usuarioCreado.id}`);
+            } else {
+                await controller.modificarUsuario(nombreViejo, nombre.trim());
+                Alert.alert('Usuario modificado', `${nombreViejo} ha sido renombrado a ${nombre}.`);
+                setEditando(false);
+                setNombreViejo('');
+            }
             setNombre('');
         } catch (error) {
             Alert.alert('Error', error.message);
         } finally {
-            setGuardando(false);
+            setLoading(false);
         }
-    }
+    };
+
+    const buttonLabel = loading
+        ? editando
+            ? 'Guardando cambios...'
+            : 'Guardando...'
+        : editando
+            ? 'Editar Usuario'
+            : 'Agregar Usuario';
 
     return (
-
         <View style={styles.container}>
-
-            {/* Zona del encabezado */}
-
-            <Text style={styles.title}> INSERT & SELECT</Text>
+            <Text style={styles.title}>INSERT & SELECT</Text>
             <Text style={styles.subtitle}>
                 {Platform.OS === 'web' ? ' WEB (LocalStorage)' : ` ${Platform.OS.toUpperCase()} (SQLite)`}
             </Text>
 
-            {/* Zona del INSERT */}
-
             <View style={styles.insertSection}>
-                <Text style={styles.sectionTitle}> Insertar Usuario</Text>
+                <View style={styles.insertHeaderRow}>
+                    <Text style={styles.sectionTitle}>
+                        {editando ? 'Editar Usuario' : 'Insertar Usuario'}
+                    </Text>
+                    {editando && (
+                        <View style={styles.editBadge}>
+                            <Text style={styles.editBadgeText}>Modo edición</Text>
+                        </View>
+                    )}
+                </View>
+
+                {editando && (
+                    <Text style={styles.editingHint}>
+                        Editando: <Text style={styles.editingHintName}>{nombreViejo}</Text>
+                    </Text>
+                )}
 
                 <TextInput
-                    style={styles.input}
-                    placeholder="Escribe el nombre del usuario"
+                    style={[
+                        styles.input,
+                        editando && styles.inputEditing,
+                    ]}
+                    placeholder={editando ? 'Edita el nombre del usuario' : 'Escribe el nombre del usuario'}
                     value={nombre}
                     onChangeText={setNombre}
-                    editable={!guardando}
+                    editable={!loading}
                 />
 
                 <TouchableOpacity
-                    style={[styles.button, guardando && styles.buttonDisabled]}
+                    style={[
+                        styles.button,
+                        editando && styles.buttonEdit,
+                        loading && styles.buttonDisabled,
+                    ]}
                     onPress={handleAgregar}
-                    disabled={guardando}
+                    disabled={loading}
                 >
-
                     <Text style={styles.buttonText}>
-                        {guardando ? ' Guardando...' : 'Agregar Usuario'}
+                        {buttonLabel}
                     </Text>
-
                 </TouchableOpacity>
-
             </View>
 
-
-            {/* Zona del SELECT */}
-
             <View style={styles.selectSection}>
-
                 <View style={styles.selectHeader}>
-
                     <Text style={styles.sectionTitle}>Lista de Usuarios</Text>
 
                     <TouchableOpacity
                         style={styles.refreshButton}
                         onPress={cargarUsuarios}
+                        disabled={loading}
                     >
-                        <Text style={styles.refreshText}>Recargar</Text>
+                        <Text style={[styles.refreshText, loading && styles.refreshTextDisabled]}>
+                            Recargar
+                        </Text>
                     </TouchableOpacity>
-
                 </View>
 
                 {loading ? (
                     <View style={styles.loadingContainer}>
-                        <ActivityIndicator size="large" color="#007AFF"/>
-                        <Text style={styles.loadingText}>Cargando
-                                                         usuarios...</Text>
+                        <ActivityIndicator size="large" color="#007AFF" />
+                        <Text style={styles.loadingText}>Cargando usuarios...</Text>
                     </View>
                 ) : (
                     <FlatList
                         data={usuarios}
                         keyExtractor={(item) => item.id.toString()}
                         renderItem={({item, index}) => (
-                            <RenderUsuario item={item} index={index}/>
+                            <RenderUsuario
+                                item={item}
+                                index={index}
+                                editItem={modificar}
+                                deleteItem={borrar}
+                            />
                         )}
                         ListEmptyComponent={
                             <View style={styles.emptyContainer}>
-                                <Text style={styles.emptyText}> No hay
-                                                                usuarios</Text>
-                                <Text style={styles.emptySubtext}>Agrega el
-                                                                  primero
-                                                                  arriba</Text>
+                                <Text style={styles.emptyText}>No hay usuarios</Text>
+                                <Text style={styles.emptySubtext}>Agrega el primero arriba</Text>
                             </View>
                         }
                         contentContainerStyle={usuarios.length === 0 && styles.emptyList}
                     />
                 )}
-
-
             </View>
-
-
         </View>
     );
 }
@@ -184,6 +246,34 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
     },
+    insertHeaderRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 8,
+    },
+    editBadge: {
+        backgroundColor: '#FFF4E5',
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 999,
+        borderWidth: 1,
+        borderColor: '#FF9500',
+    },
+    editBadgeText: {
+        fontSize: 11,
+        color: '#FF9500',
+        fontWeight: '600',
+    },
+    editingHint: {
+        fontSize: 13,
+        color: '#555',
+        marginBottom: 10,
+    },
+    editingHintName: {
+        fontWeight: '600',
+        color: '#222',
+    },
     selectSection: {
         flex: 1,
         backgroundColor: '#fff',
@@ -218,7 +308,14 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         alignItems: 'center',
     },
-    buttonDisabled: {
+    inputEditing: {
+        borderColor: '#FFB200',
+        backgroundColor: '#FFF7E0',
+    },
+
+    buttonEdit: {
+        backgroundColor: '#FFB200',
+    },    buttonDisabled: {
         backgroundColor: '#ccc',
     },
     buttonText: {
@@ -238,6 +335,9 @@ const styles = StyleSheet.create({
     refreshText: {
         color: '#007AFF',
         fontSize: 14,
+    },
+    refreshTextDisabled: {
+        color: '#aaa',
     },
     loadingContainer: {
         flex: 1,
@@ -266,29 +366,5 @@ const styles = StyleSheet.create({
     emptySubtext: {
         fontSize: 14,
         color: '#bbb',
-    },
-    mvcInfo: {
-        backgroundColor: '#e3f2fd',
-        padding: 15,
-        marginHorizontal: 15,
-        marginBottom: 15,
-        borderRadius: 8,
-        borderLeftWidth: 4,
-        borderLeftColor: '#2196F3',
-    },
-    mvcTitle: {
-        fontSize: 14,
-        fontWeight: 'bold',
-        color: '#1976D2',
-        marginBottom: 8,
-    },
-    mvcText: {
-        fontSize: 12,
-        color: '#555',
-        lineHeight: 18,
-    },
-    bold: {
-        fontWeight: 'bold',
-        color: '#1976D2',
     },
 });

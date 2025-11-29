@@ -1,4 +1,4 @@
-import { Platform } from 'react-native';
+import {Platform} from 'react-native';
 import * as SQLite from 'expo-sqlite';
 
 class DatabaseService {
@@ -55,6 +55,52 @@ class DatabaseService {
                 nombre,
                 fecha_creacion: new Date().toISOString()
             }
+        }
+    }
+
+    async delete(nombre) {
+        if (Platform.OS === 'web') {
+            const usuarios = await this.getAll();
+
+            const filtered = usuarios.filter(usuario => usuario.nombre !== nombre);
+
+            localStorage.setItem(this.storageKey, JSON.stringify(filtered));
+        } else {
+            await this.db.runAsync(
+                `DELETE
+                 FROM usuarios
+                 WHERE
+                     nombre = ?`,
+                nombre
+            );
+        }
+    }
+
+    async update(viejoNombre, nuevoNombre) {
+        if (Platform.OS === 'web') {
+            const usuarios = await this.getAll();
+
+            const usuario = usuarios.find(u => u.nombre === viejoNombre);
+            if (!usuario) throw new Error('No se encontró el usuario.');
+
+            usuario.nombre = nuevoNombre;
+
+            localStorage.setItem(this.storageKey, JSON.stringify(usuarios));
+            return usuario;
+        } else {
+            const {changes, affectedId} = await this.db.runAsync(
+                `UPDATE usuarios
+                 SET
+                     nombre = ?
+                 WHERE
+                     nombre = ?`,
+                [nuevoNombre, viejoNombre]
+            );
+            if (!changes) throw new Error('No se encontró el usuario.');
+
+            const usuarios = await this.getAll();
+
+            return usuarios.filter(usuario => usuario.id === affectedId);
         }
     }
 }
